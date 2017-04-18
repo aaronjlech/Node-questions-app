@@ -30,13 +30,9 @@ var app = express();
 //    next()
 //
 // })
-app.user('questions', routes);
+app.use('/questions', routes);
 app.use(jsonParser());
 var port = process.env.PORT || 3000;
 
 
-app.listen(port,function(){
-   console.log("server listening at", port)
-
-
-});
+app.listen(port,()=> console.log("server listening at", port) );
