@@ -4,5 +4,6 @@
 -Node.js
 -express
 -MongoDB
+-mongoose
 -React
 -Redux
