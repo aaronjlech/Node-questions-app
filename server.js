@@ -1,8 +1,15 @@
-'use strict';
+// 'use strict';
 var express = require('express')
 var routes = require('./routes');
 var jsonParser = require('body-parser').json;
+var mongoose = require('mongoose');
+var webpackDevMiddleware = require('webpack-dev-middleware');
+var webpack = require('webpack');
+var webpackConfig = require('./webpack.config.js');
 
+mongoose.connect("mongodb://localhost/qa");
+
+var db = mongoose.connection;
 // var jsonCheck = function(req, res, next){
 //    if(req.body){
 //       console.log('the sky is', req.body.color);
@@ -30,6 +37,24 @@ var app = express();
 //    next()
 //
 // })
+var compiler = webpack(webpackConfig);
+
+app.use(express.static(__dirname + '/public'));
+
+app.use(webpackDevMiddleware(compiler, {
+  hot: true,
+  filename: 'bundle.js',
+  publicPath: '/',
+  stats: {
+    colors: true,
+  },
+  historyApiFallback: true,
+}));
+db.on('error', (err) => {
+ console.error('connection error', error)
+
+});
+db.once('open', ()=>{ });
 app.use('/questions', routes);
 app.use(jsonParser());
 var port = process.env.PORT || 3000;
