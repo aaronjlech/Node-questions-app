@@ -80,21 +80,20 @@ router.post('/:qID/answers', (req, res, next) => {
 
 // EDIT ANSWER ROUTE
 router.put('/:qID/answers/:aID', (req, res) => {
-   res.json({
-      response: "you sent a put request to " + req.params.id,
-      questionId: req.params.id,
-      answerId: req.params.aID,
-      body: req.body
+   req.answer.update(req.body, (err, result)=>{
+      if(err) return next(err);
+      res.json(result);
    })
 
 })
 
 //DELETE ANSWER ROUTE
 router.delete('/:qID/answers/:aID', (req, res) => {
-   res.json({
-      response: 'you sent a delete request to ' + req.params.id,
-      questionId: req.params.id,
-      answerId: req.params.aID
+   req.answer.remove((err)=>{
+      req.question.save((err, question)=>{
+         if(err) return next(err);
+         res.json(question);
+      })
    })
 })
 
@@ -107,17 +106,16 @@ router.post('/:qID/answers/:aID/vote-:dir', (req, res, next) =>{
          err.status = 404;
          next(err);
       } else {
+         req.vote = req.params.dir;
       next();
       }
 
-   },  (req, res) => {
+   }, (req, res, next) => {
+      req.answer.vote(req.vote, (err, question) =>{
+         if(err) return next(err);
+         res.json(question);
+      })
 
-   res.json({
-      response: 'you sent a post request to vote ups' + req.params.id,
-      questionId: req.params.id,
-      answerId: req.params.aID,
-      vote: req.params.dir
-   })
 })
 module.exports = router;
 
