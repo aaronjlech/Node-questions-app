@@ -2,48 +2,84 @@
 var express = require('express');
 
 var router = express.Router();
+var Question = require('./models').Question;
 
+
+// Middleware to handle requests for questions ID dynamically
+router.param('qID', (req, res, next, id)=>{
+   Question.findById(req.params.qID, (err, doc)=>{
+      if(err) return next(err);
+      if(!doc){
+         err = new Error("Not Found");
+         err.status = 404;
+         return next(err);
+      }
+      req.question = doc;
+      res.json(doc);
+   ]);
+})
+
+router.param('aID'), (req, res, next, id)=>{
+   req.answer = req.question.answers.id(id);
+   if(!req.answer){
+      err = new Error('Not Found');
+      err.status = 404;
+      return next(err);
+   }
+   next();
+}
 //GET ALL /questions
-router.get('/', (req, res)=>{
-   res.json({response: "You sent me a GET request"});
+router.get('/', (req, res, next)=>{
+   Question.find({})
+            .sort({createdAt: -1})
+            .exec( (err, questions)=>{
+               if(err) return next(err);
+               res.json(questions);
+            })
 
 });
 
 // POST /questions
 // Route for creating questions
 router.post("/", (req, res)=>{
-   res.json({
-      response: "You sent a POST request",
-      body: req.body
+   // create new model of a question
+   let question = new Question(req.body);
+   question.save((err, question)=>{
+      if(err) return next(err);
+      // Tell client data was saved successfully
+      res.status(201);
+      res.json(question);
    })
+
 })
 
-// GET /questions/:id
+// GET /questions/:qID
 // ROUTE for specific question
-router.get('/:id', (req, res)=>{
-   res.json({
-      response: `you sent a request for ${req.params.id}`
-   })
+router.get('/:qID', (req, res)=>{
+   res.json(req.question);
 
 
 })
 // GET ANSWERS BY QUESTION ID
-router.get('/:id/answers', (req, res) => {
+router.get('/:qID/answers', (req, res) => {
    res.json({
       response: "you sent a get request for answers to " + req.params.id,
    })
 })
 // POST ANSWER TO QUESTIONS
-router.post('/:id/answers', (req, res) => {
-   res.json({
-      response: 'you sent a post? request to answers' + req.params.id,
-      questionId: req.params.id,
-      body: req.body
-   })
+router.post('/:qID/answers', (req, res, next) => {
+   req.question.answers.push(req.body);
+   req.question.save((err, question)=>{
+      if(err) return next(err);
+      // Tell client data was saved successfully
+      res.status(201);
+      res.json(question);
+   });
+
 })
 
 // EDIT ANSWER ROUTE
-router.put('/:id/answers/:aID', (req, res) => {
+router.put('/:qID/answers/:aID', (req, res) => {
    res.json({
       response: "you sent a put request to " + req.params.id,
       questionId: req.params.id,
@@ -54,7 +90,7 @@ router.put('/:id/answers/:aID', (req, res) => {
 })
 
 //DELETE ANSWER ROUTE
-router.delete('/:id/answers/:aID', (req, res) => {
+router.delete('/:qID/answers/:aID', (req, res) => {
    res.json({
       response: 'you sent a delete request to ' + req.params.id,
       questionId: req.params.id,
@@ -63,9 +99,9 @@ router.delete('/:id/answers/:aID', (req, res) => {
 })
 
 // POST VOTE UP OR VOTE DOWN FUNCTION
-// POST  /questions/:id/answers/:aID/vote-down
-// POST  /questions/:id/answers/:aID/votw-up
-router.post('/:id/answers/:aID/vote-:dir', (req, res, next) =>{
+// POST  /questions/:qID/answers/:aID/vote-down
+// POST  /questions/:qID/answers/:aID/votw-up
+router.post('/:qID/answers/:aID/vote-:dir', (req, res, next) =>{
       if(req.params.dir.search(/^(up|down)$/) === -1) {
          var err = new Error('Not Found');
          err.status = 404;
