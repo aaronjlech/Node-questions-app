@@ -1,11 +1,15 @@
 // 'use strict';
 var express = require('express')
-var routes = require('./routes');
+var routes = require('./db/routes');
 var jsonParser = require('body-parser').json;
 var mongoose = require('mongoose');
 var webpackDevMiddleware = require('webpack-dev-middleware');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config.js');
+var logger = require('morgan');
+
+
+
 
 mongoose.connect("mongodb://localhost/qa");
 
@@ -55,8 +59,27 @@ db.on('error', (err) => {
 
 });
 db.once('open', ()=>{ });
-app.use('/questions', routes);
+app.use(logger('dev'));
 app.use(jsonParser());
+
+
+
+app.use('/questions', routes);
+app.use(function(req, res, next){
+   var err = new Error("Not Found");
+   err.status = 404;
+   next(err);
+})
+
+// Error Handler
+app.use(function(err, req, res, next){
+   res.status(err.status || 500);
+   res.json({
+      error: {
+         message: err.message
+      }
+   })
+})
 var port = process.env.PORT || 3000;
 
 
