@@ -16,10 +16,10 @@ router.param('qID', (req, res, next, id)=>{
       }
       req.question = doc;
       res.json(doc);
-   ]);
+   });
 })
 
-router.param('aID'), (req, res, next, id)=>{
+router.param('aID', (req, res, next, id)=>{
    req.answer = req.question.answers.id(id);
    if(!req.answer){
       err = new Error('Not Found');
@@ -27,7 +27,7 @@ router.param('aID'), (req, res, next, id)=>{
       return next(err);
    }
    next();
-}
+});
 //GET ALL /questions
 router.get('/', (req, res, next)=>{
    Question.find({})

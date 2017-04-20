@@ -28,7 +28,8 @@ AnswerSchema.method("vote", (vote, cb)=>{
 
 
 var QuestionSchema = new Schema({
-   test: {type: String},
+   title: {type: String},
+   text: {type: String},
    createdAt: {type: Date},
    answers: [AnswerSchema],
 
@@ -50,4 +51,4 @@ QuestionSchema.pre("save", (next)=>{
 
 var Question = mongoose.model("Question", QuestionSchema);
 
-modules.exports.Question = Question;
+module.exports.Question = Question;
