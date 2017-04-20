@@ -1,4 +1,4 @@
-// 'use strict';
+'use strict';
 var express = require('express')
 var routes = require('./db/routes');
 var jsonParser = require('body-parser').json;
@@ -14,33 +14,14 @@ var logger = require('morgan');
 mongoose.connect("mongodb://localhost/qa");
 
 var db = mongoose.connection;
-// var jsonCheck = function(req, res, next){
-//    if(req.body){
-//       console.log('the sky is', req.body.color);
-//
-//    } else {
-//       console.log("there is no property in the body");
-//    }
-//    next();
-//
-// }
+
 
 
 var app = express();
-// app.use((req, res, next)=>{
-//    console.log("first piece of middleware")
-//    // pass down data by attaching it to the the req object
-//    req.passThis = "hey there"
-//    // access querystring values ie: /?queryKey=hello+world
-//    // req.query.queryKey === hello+world
-//    next()
-// })
-// app.use('/different/',function(req, res, next){
-//    console.log("second piece of middleware",req.query.color)
-//
-//    next()
-//
-// })
+
+app.use(logger('dev'));
+app.use(jsonParser());
+
 var compiler = webpack(webpackConfig);
 
 app.use(express.static(__dirname + '/public'));
@@ -55,16 +36,25 @@ app.use(webpackDevMiddleware(compiler, {
   historyApiFallback: true,
 }));
 db.on('error', (err) => {
- console.error('connection error', error)
-
+ console.error('connection error', err)
 });
-db.once('open', ()=>{ });
-app.use(logger('dev'));
-app.use(jsonParser());
 
+db.once('open', ()=>{
+   console.log("connection successful");
+});
 
-
+app.use((req, res, next)=>{
+   res.header('Acesss-Control-Allow-Origin', "*");
+   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With", "Content-Type, Accept");
+   if(req.method === "OPTIONS") {
+      res.header("Access-Control-Allow-Methods", "PUT, POST, DELTE");
+      return res.status(200).json({});
+   }
+   next();
+})
 app.use('/questions', routes);
+
+
 app.use(function(req, res, next){
    var err = new Error("Not Found");
    err.status = 404;
@@ -80,6 +70,7 @@ app.use(function(err, req, res, next){
       }
    })
 })
+
 var port = process.env.PORT || 3000;
 
 
