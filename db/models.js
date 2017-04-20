@@ -17,7 +17,7 @@ AnswerSchema.method("update", (updates, cb)=>{
 })
 
 AnswerSchema.method("vote", (vote, cb)=>{
-
+   // this.parent() === undefined 
    if(vote === "up"){
       this.votes += 1;
    } else if (vote === "down" && this.votes !== 0){
@@ -31,11 +31,13 @@ var QuestionSchema = new Schema({
    title: {type: String},
    text: {type: String},
    createdAt: {type: Date},
-   answers: [AnswerSchema],
+   answers: [AnswerSchema]
 
 });
 
 QuestionSchema.pre("save", (next)=>{
+   // this.answers is always === undefined
+   if(!this.answers) return next();
    this.answers.sort((a, b)=>{
       if(a.votes === b.votes){
          // JS WILL SUBTRACT DATES AND RETURN THEM IN MILLISECONDS

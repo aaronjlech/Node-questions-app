@@ -15,10 +15,12 @@ router.param('qID', (req, res, next, id)=>{
          return next(err);
       }
       req.question = doc;
-      res.json(doc);
+      // res.json(doc);
+      return next();
    });
 })
 
+// middleware for handling answer ID dynamically
 router.param('aID', (req, res, next, id)=>{
    req.answer = req.question.answers.id(id);
    if(!req.answer){
@@ -62,14 +64,14 @@ router.get('/:qID', (req, res)=>{
 })
 // GET ANSWERS BY QUESTION ID
 router.get('/:qID/answers', (req, res) => {
-   res.json({
-      response: "you sent a get request for answers to " + req.params.id,
-   })
+   res.json(req.question.answers);
 })
 // POST ANSWER TO QUESTIONS
 router.post('/:qID/answers', (req, res, next) => {
+   console.log(req.body)
    req.question.answers.push(req.body);
    req.question.save((err, question)=>{
+      console.log(question.answers, req.body, '???')
       if(err) return next(err);
       // Tell client data was saved successfully
       res.status(201);
