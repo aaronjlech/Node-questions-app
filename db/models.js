@@ -11,13 +11,13 @@ var AnswerSchema = new Schema({
    votes: {type: Number, default: 0}
 });
 
-AnswerSchema.method("update", (updates, cb)=>{
-   OBject.assign(this, updates, {updatedAt: new Date()});
+AnswerSchema.method("update", function(updates, cb){
+   Object.assign(this, updates, {updatedAt: new Date()});
    this.parent().save(cb);
 })
 
-AnswerSchema.method("vote", (vote, cb)=>{
-   // this.parent() === undefined 
+AnswerSchema.method("vote", function(vote, cb){
+   // this.parent() === undefined
    if(vote === "up"){
       this.votes += 1;
    } else if (vote === "down" && this.votes !== 0){
@@ -35,7 +35,7 @@ var QuestionSchema = new Schema({
 
 });
 
-QuestionSchema.pre("save", (next)=>{
+QuestionSchema.pre("save", function(next){
    // this.answers is always === undefined
    if(!this.answers) return next();
    this.answers.sort((a, b)=>{
