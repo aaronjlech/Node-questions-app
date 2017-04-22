@@ -1,7 +1,10 @@
 // import {}
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 
+
+axios.get('/questions').then(res => console.log(res.data))
 
 
 class App extends Component{
