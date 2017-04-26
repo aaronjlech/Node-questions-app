@@ -6,6 +6,7 @@ var Schema = mongoose.Schema;
 
 var AnswerSchema = new Schema({
    text: String,
+   username: String,
    createdAt: {type: Date, default: Date.now},
    updatedAt: {type: Date, default: Date.now},
    votes: {type: Number, default: 0}
@@ -29,6 +30,7 @@ AnswerSchema.method("vote", function(vote, cb){
 
 var QuestionSchema = new Schema({
    title: {type: String},
+   username: String,
    text: {type: String},
    createdAt: {type: Date},
    answers: [AnswerSchema]
